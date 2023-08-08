@@ -36,7 +36,35 @@ def file_selector(folder_path='example_vids',key=1):
 
 
 def run_inference():
-    if upload_bool == 'Read file from disk':
+    if upload_bool == 'Merge multiple videos (STRECH GOAL!)':
+        col1, col2 = st.columns(2)
+        fname1 = file_selector(key=1)
+        fname2 = file_selector(key=2)
+        reset_buffer_every_n_seconds = st.number_input('Reset buffer every N seconds',value=50, step=1)
+
+        with col1:
+            st.video(fname1, format="video")
+        with col2:
+            st.video(fname2, format="video")
+        video,fps = loader.merge_2_videos(fname1, fname2)
+        batch_size = 5
+        n_frames_skip = round(fps/5)
+        m = ModelInference(batch_size=batch_size,n_frames_skip=n_frames_skip,reset_buffer_every_n_batches=reset_buffer_every_n_seconds, label_granularity=label_granularity)
+        start = time.time()
+        df_out = m.analyse_vid(video, int(fps), return_df=True, show_plot=False,return_fig=False)
+        end = time.time()
+        st.header(f'Inference time: {end - start:.2f} seconds')
+        st.write(f'Video length: {video.shape[1]/fps:.2f} seconds')
+        st.write(f'Time ratio: {(end - start)/(video.shape[1]/fps):.2f} seconds')
+        fig, ax = plt.subplots()
+        sns.lineplot(x='index',y="Probabilities",ax=ax, hue='cols', data=df_out,alpha=0.6,legend=False)
+        sns.scatterplot(x='index',y="Probabilities",ax=ax, hue='cols', data=df_out)
+        plt.xlabel('Time in seconds')
+        #plt.legend()
+        plt.legend(bbox_to_anchor=(1.04,1), borderaxespad=0)
+
+        st.pyplot(fig)
+    elif upload_bool == 'Read file from disk':
         col1, col2 = st.columns(2)
         fname = file_selector()
         reset_buffer_every_n_seconds = st.number_input('Reset buffer every N seconds',value=50, step=1)
@@ -89,34 +117,6 @@ def run_inference():
                 plt.legend(bbox_to_anchor=(1.04,1), borderaxespad=0)
                 with col2:
                     st.pyplot(fig)
-    elif upload_bool == 'Merge multiple videos (STRECH GOAL!)':
-        col1, col2 = st.columns(2)
-        fname1 = file_selector(key=1)
-        fname2 = file_selector(key=2)
-        reset_buffer_every_n_seconds = st.number_input('Reset buffer every N seconds',value=50, step=1)
-
-        with col1:
-            st.video(fname1, format="video")
-        with col2:
-            st.video(fname2, format="video")
-        video,fps = loader.merge_2_videos(fname1, fname2)
-        batch_size = 5
-        n_frames_skip = round(fps/5)
-        m = ModelInference(batch_size=batch_size,n_frames_skip=n_frames_skip,reset_buffer_every_n_batches=reset_buffer_every_n_seconds, label_granularity=label_granularity)
-        start = time.time()
-        df_out = m.analyse_vid(video, int(fps), return_df=True, show_plot=False,return_fig=False)
-        end = time.time()
-        st.header(f'Inference time: {end - start:.2f} seconds') 
-        st.write(f'Video length: {video.shape[1]/fps:.2f} seconds')
-        st.write(f'Time ratio: {(end - start)/(video.shape[1]/fps):.2f} seconds')
-        fig, ax = plt.subplots()
-        sns.lineplot(x='index',y="Probabilities",ax=ax, hue='cols', data=df_out,alpha=0.6,legend=False)
-        sns.scatterplot(x='index',y="Probabilities",ax=ax, hue='cols', data=df_out)
-        plt.xlabel('Time in seconds')
-        #plt.legend()
-        plt.legend(bbox_to_anchor=(1.04,1), borderaxespad=0)
-        
-        st.pyplot(fig)
 
 
 

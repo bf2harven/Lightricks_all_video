@@ -62,14 +62,8 @@ class Tracker:
             height = max(height, int(aspect_ratio_max*width))
 
         for frame_number, X,	Y,	_,	_ in df_smooth.loc[::1, ['frame_number', 'rolling_x0',	'rolling_y0', 'rolling_width', 'rolling_height']].values:
-            if X - width//2 < 0:
-                x0 = 0
-            else:
-                x0 = X - int(width//2)
-            if Y - height//2 < 0:
-                y0 = 0
-            else:
-                y0 = Y - int(height//2)
+            x0 = 0 if X - width//2 < 0 else X - int(width//2)
+            y0 = 0 if Y - height//2 < 0 else Y - int(height//2)
             x1 = X + width
             y1 = Y + height
             frame = video[frame_number, y0:y1, x0:x1, :]

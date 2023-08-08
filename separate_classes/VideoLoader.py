@@ -38,7 +38,7 @@ class VideoLoader:
         :param frame: The frame to crop
         :return: The cropped image.
         """
-        y, x = frame.shape[0:2]
+        y, x = frame.shape[:2]
         min_dim = min(y, x)
         start_x = (x // 2) - (min_dim // 2)
         start_y = (y // 2) - (min_dim // 2)
@@ -88,7 +88,7 @@ class VideoLoader:
         """
         original_shape = (image.shape[1], image.shape[0])
         ratio = float(max(new_shape))/max(original_shape)
-        new_size = tuple([int(x*ratio) for x in original_shape])
+        new_size = tuple(int(x*ratio) for x in original_shape)
         image = cv2.resize(image.astype('float32'), new_size)
         delta_w = new_shape[0] - new_size[0]
         delta_h = new_shape[1] - new_size[1]
